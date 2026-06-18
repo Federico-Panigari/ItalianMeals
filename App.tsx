@@ -1,6 +1,6 @@
-import Lab from './livecode/App';
+import { AppNavigator } from './src/navigation/AppNavigator';
 
 export default function App(){
-    return <Lab />
+    return <AppNavigator />
 
 }
