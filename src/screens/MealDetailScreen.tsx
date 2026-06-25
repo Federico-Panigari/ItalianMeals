@@ -3,7 +3,7 @@ import { View, Text, Image, ScrollView, Pressable, ActivityIndicator, StyleSheet
 import { fetchMealById } from "../services/mealsApi";
 import { MealDetailState } from "../types/meal";
 
-export function MealDetailScreen({ route }: any) {
+export function MealDetailScreen({ route ,navigation}: any) {
   const idMeal = route.params?.idMeal;
 
   const [state, setState] = useState<MealDetailState>({
@@ -36,6 +36,14 @@ export function MealDetailScreen({ route }: any) {
   useEffect(() => {
     loadMeal();
   }, [idMeal]);
+
+  if (state.status === "idle") {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   if (state.status === "loading") {
     return (
@@ -80,19 +88,26 @@ export function MealDetailScreen({ route }: any) {
       </Text>
       <Text style={styles.sectionTitle}>Istruzioni</Text>
       <Text style={styles.instructions}>{meal.strInstructions}</Text>
+      <Pressable
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+        accessibilityLabel="Torna alla lista dei piatti"
+      >
+        <Text style={styles.backButtonText}>← Torna indietro</Text>
+      </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 },
+  container: { flex: 1, padding: 16 ,backgroundColor: "#8b2323"},
+  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 , backgroundColor: "#8b2323"},
   image: { width: "100%", height: 220, borderRadius: 12, marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: "700" },
-  category: { color: "#666", marginTop: 4, marginBottom: 16 },
+  title: { fontSize: 22, fontWeight: "700" , color: "#ff5100"},
+  category: { color: "#ff7535", marginTop: 4, marginBottom: 16 },
   sectionTitle: { fontSize: 17, fontWeight: "700", marginBottom: 8 },
   instructions: { fontSize: 14, lineHeight: 20 },
-  loadingText: { marginTop: 12, color: "#666" },
+  loadingText: { marginTop: 12, color: "#5c5c5c" },
   errorText: { color: "red", marginBottom: 12, textAlign: "center" },
   retryButton: {
     paddingVertical: 10,
@@ -102,4 +117,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   retryText: { fontWeight: "600" },
+  backButton: {
+    marginTop: 20,
+    marginBottom: 24,
+    alignSelf: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#fff",
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+  },
+  backButtonText: { color: "#fff", fontWeight: "600" },
 });

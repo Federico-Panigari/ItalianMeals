@@ -2,12 +2,18 @@ import { useEffect, useState } from "react";
 import { View, Text, FlatList, Pressable, Image, ActivityIndicator, StyleSheet } from "react-native";
 import { fetchItalianMeals } from "../services/mealsApi";
 import { MealsListState } from "../types/meal";
+import {loadFavoriteIds, saveFavoriteIds} from "../services/storage";
+import {FavoriteButton} from "../components/FavoriteButton";
+
+
 
 export function MealsListScreen({ navigation }: any) {
   const [state, setState] = useState<MealsListState>({
     status: "idle",
     items: [],
   });
+
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
   async function loadMeals() {
     setState({ status: "loading", items: [] });
@@ -27,8 +33,15 @@ export function MealsListScreen({ navigation }: any) {
     }
   }
 
+  async function toggleFavorite(idMeal: string) {
+    const updated = favoriteIds.includes(idMeal)? favoriteIds.filter((id) => id !== idMeal) : [...favoriteIds, idMeal];
+    setFavoriteIds(updated);
+    await saveFavoriteIds(updated);
+  }
+
   useEffect(() => {
     loadMeals();
+    loadFavoriteIds().then(setFavoriteIds);
   }, []);
 
   if (state.status === "loading") {
@@ -66,6 +79,7 @@ export function MealsListScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Piatti italiani</Text>
+       <Text style={styles.favCount}>Piatti preferiti: {favoriteIds.length}</Text>
       <FlatList
         data={state.items}
         keyExtractor={(item) => item.idMeal}
@@ -77,6 +91,11 @@ export function MealsListScreen({ navigation }: any) {
           >
             <Image source={{ uri: item.strMealThumb }} style={styles.thumb} />
             <Text style={styles.mealName}>{item.strMeal}</Text>
+            <FavoriteButton
+              idMeal={item.idMeal}
+              isFavorite={favoriteIds.includes(item.idMeal)}
+              onToggle={toggleFavorite}
+            />
           </Pressable>
         )}
       />
@@ -85,11 +104,12 @@ export function MealsListScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, padding: 16 ,backgroundColor: "#d13c3c"},
   
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 12 },
+  title: { fontSize: 22, fontWeight: "700", marginBottom: 12 , color: "#09ff00"},
   
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 },
+  favCount: { fontSize: 14, color: "#ffffff", marginBottom: 12 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 , backgroundColor: "#d13c3c"},
   
   row: {
     flexDirection: "row",
@@ -100,7 +120,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   thumb: { width: 48, height: 48, borderRadius: 8 },
-  mealName: { fontSize: 15, fontWeight: "600" },
+  mealName: { fontSize: 15, fontWeight: "600" , flex: 1 },
   loadingText: { marginTop: 12, color: "#666" },
   errorText: { color: "red", marginBottom: 12, textAlign: "center" },
   retryButton: {
