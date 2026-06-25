@@ -4,7 +4,7 @@ import { fetchItalianMeals } from "../services/mealsApi";
 import { MealsListState } from "../types/meal";
 import {loadFavoriteIds, saveFavoriteIds} from "../services/storage";
 import {FavoriteButton} from "../components/FavoriteButton";
-
+import { useFavorites } from "../context/FavoriteContext";
 
 
 export function MealsListScreen({ navigation }: any) {
@@ -13,7 +13,7 @@ export function MealsListScreen({ navigation }: any) {
     items: [],
   });
 
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const { favoriteIds, toggleFavorite } = useFavorites();
 
   async function loadMeals() {
     setState({ status: "loading", items: [] });
@@ -33,15 +33,9 @@ export function MealsListScreen({ navigation }: any) {
     }
   }
 
-  async function toggleFavorite(idMeal: string) {
-    const updated = favoriteIds.includes(idMeal)? favoriteIds.filter((id) => id !== idMeal) : [...favoriteIds, idMeal];
-    setFavoriteIds(updated);
-    await saveFavoriteIds(updated);
-  }
 
   useEffect(() => {
     loadMeals();
-    loadFavoriteIds().then(setFavoriteIds);
   }, []);
 
   if (state.status === "loading") {

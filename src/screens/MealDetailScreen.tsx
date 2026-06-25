@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, Pressable, ActivityIndicator, StyleSheet } from "react-native";
 import { fetchMealById } from "../services/mealsApi";
 import { MealDetailState } from "../types/meal";
+import { loadFavoriteIds, saveFavoriteIds } from "../services/storage";
+import { FavoriteButton } from "../components/FavoriteButton";
+import { useFavorites } from "../context/FavoriteContext";
 
 export function MealDetailScreen({ route ,navigation}: any) {
   const idMeal = route.params?.idMeal;
@@ -10,6 +13,7 @@ export function MealDetailScreen({ route ,navigation}: any) {
     status: "idle",
     data: null,
   });
+  const { favoriteIds, toggleFavorite } = useFavorites();
 
   async function loadMeal() {
     if (!idMeal) {
@@ -32,6 +36,8 @@ export function MealDetailScreen({ route ,navigation}: any) {
       });
     }
   }
+
+  
 
   useEffect(() => {
     loadMeal();
@@ -82,7 +88,14 @@ export function MealDetailScreen({ route ,navigation}: any) {
   return (
     <ScrollView style={styles.container}>
       <Image source={{ uri: meal.strMealThumb }} style={styles.image} />
-      <Text style={styles.title}>{meal.strMeal}</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>{meal.strMeal}</Text>
+        <FavoriteButton
+          idMeal={meal.idMeal}
+          isFavorite={favoriteIds.includes(meal.idMeal)}
+          onToggle={toggleFavorite}
+        />
+      </View>
       <Text style={styles.category}>
         {meal.strCategory} · {meal.strArea}
       </Text>
@@ -103,9 +116,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 ,backgroundColor: "#8b2323"},
   center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 , backgroundColor: "#8b2323"},
   image: { width: "100%", height: 220, borderRadius: 12, marginBottom: 16 },
+  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   title: { fontSize: 22, fontWeight: "700" , color: "#ff5100"},
   category: { color: "#ff7535", marginTop: 4, marginBottom: 16 },
-  sectionTitle: { fontSize: 17, fontWeight: "700", marginBottom: 8 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", marginBottom: 8 , color: "#ffffff"},
   instructions: { fontSize: 14, lineHeight: 20 },
   loadingText: { marginTop: 12, color: "#5c5c5c" },
   errorText: { color: "red", marginBottom: 12, textAlign: "center" },
