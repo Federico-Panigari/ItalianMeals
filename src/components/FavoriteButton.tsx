@@ -1,19 +1,22 @@
 import { Pressable, Text, StyleSheet } from "react-native";
+import {  useFavorites } from "../context/FavoriteContext";
 
 interface FavoriteButtonProps {
   idMeal: string;
-  isFavorite: boolean;
-  onToggle: (idMeal: string) => void;
 }
 
-export function FavoriteButton({ idMeal, isFavorite, onToggle }: FavoriteButtonProps) {
+export function FavoriteButton({ idMeal }: FavoriteButtonProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(idMeal);
+
+  
   return (
     <Pressable
       style={styles.button}
-      onPress={() => onToggle(idMeal)}
-      accessibilityLabel={isFavorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
+      onPress={() => toggleFavorite(idMeal)}
+      accessibilityLabel={favorite ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
     >
-      <Text style={styles.icon}>{isFavorite ? "♥" : "♡"}</Text>
+      <Text style={styles.icon}>{favorite ? "♥" : "♡"}</Text>
     </Pressable>
   );
 }

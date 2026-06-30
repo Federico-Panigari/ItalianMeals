@@ -2,11 +2,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { MealsListScreen } from "../screens/MealsListScreen";
 import { MealDetailScreen } from "../screens/MealDetailScreen";
+import * as Linking from "expo-linking";
+
 
 const Stack = createNativeStackNavigator();
 
 const linking = {
-  prefixes: ["myapp://"],
+  prefixes: [Linking.createURL("/"), "myapp://"],
   config: {
     screens: {
       MealsList: "home",
