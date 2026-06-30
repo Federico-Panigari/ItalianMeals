@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { MealsListScreen } from "../screens/MealsListScreen";
 import { MealDetailScreen } from "../screens/MealDetailScreen";
 import { FavoritesScreen } from "../screens/FavoritesScreen";
+import { LoginScreen } from "../screens/LoginScreen";
 import * as Linking from "expo-linking";
 
 
@@ -22,7 +23,12 @@ const linking = {
 export function AppNavigator() {
   return (
     <NavigationContainer linking={linking}>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="MealsList"
           component={MealsListScreen}
