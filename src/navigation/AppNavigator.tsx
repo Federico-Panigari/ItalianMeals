@@ -2,17 +2,19 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { MealsListScreen } from "../screens/MealsListScreen";
 import { MealDetailScreen } from "../screens/MealDetailScreen";
+import { FavoritesScreen } from "../screens/FavoritesScreen";
 import * as Linking from "expo-linking";
 
 
 const Stack = createNativeStackNavigator();
 
 const linking = {
-  prefixes: [Linking.createURL("/"), "myapp://"],
+  prefixes: [Linking.createURL("/"), "italianmeals://"],
   config: {
     screens: {
       MealsList: "home",
       MealDetail: "meal/:idMeal",
+      Favorites: "favorites",
     },
   },
 };
@@ -30,6 +32,11 @@ export function AppNavigator() {
           name="MealDetail"
           component={MealDetailScreen}
           options={{ title: "Dettaglio piatto" }}
+        />
+        <Stack.Screen
+          name="Favorites"
+          component={FavoritesScreen}
+          options={{ title: "Piatti preferiti" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
