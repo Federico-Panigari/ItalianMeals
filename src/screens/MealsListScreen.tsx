@@ -1,12 +1,23 @@
 import { useEffect, useState } from "react";
-import { View, Text, FlatList, Pressable, Image, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, FlatList, Pressable, Image, ActivityIndicator, StyleSheet , useWindowDimensions} from "react-native";
 import { fetchItalianMeals } from "../services/mealsApi";
 import { MealsListState } from "../types/meal";
 import {FavoriteButton} from "../components/FavoriteButton";
 import { useFavorites } from "../context/FavoriteContext";
 import { PrimaryButton } from "../components/PrimaryButton";
+import { createSharedStyles } from "../theme/styles";
+import { spacing, colors } from "../theme/colors";
+import { Avatar } from "../components/Avatar";
+import { useAuth } from "../context/AuthContext";
+
 
 export function MealsListScreen({ navigation }: any) {
+
+  const { width } = useWindowDimensions();
+  const isWide = width >= 600; 
+  const shared = createSharedStyles();
+  const { user } = useAuth();
+
   const [state, setState] = useState<MealsListState>({
     status: "idle",
     items: [],
@@ -39,7 +50,7 @@ export function MealsListScreen({ navigation }: any) {
 
   if (state.status === "loading") {
     return (
-      <View style={styles.center}>
+      <View style={shared.center}>
         <ActivityIndicator size="large" />
         <Text style={styles.loadingText}>Caricamento piatti italiani...</Text>
       </View>
@@ -48,7 +59,7 @@ export function MealsListScreen({ navigation }: any) {
 
   if (state.status === "error") {
     return (
-      <View style={styles.center}>
+      <View style={shared.center}>
         <Text style={styles.errorText}>{state.message}</Text>
         <Pressable
           style={styles.retryButton}
@@ -63,16 +74,26 @@ export function MealsListScreen({ navigation }: any) {
 
   if (state.status === "empty") {
     return (
-      <View style={styles.center}>
-        <Text>Nessun piatto italiano disponibile</Text>
+      <View style={shared.center}>
+        <Text style={styles.emptyText}>Nessun piatto italiano disponibile</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Piatti italiani</Text>
-      <View style={styles.tabsRow}>
+    <View style={shared.screen}>
+      <View style={styles.headerRow}>
+        <Text style={shared.title}>Piatti italiani</Text>
+        {user && (
+          <Pressable
+            onPress={() => navigation.navigate("Profile")}
+            accessibilityLabel="Vai al profilo"
+          >
+            <Avatar uri={user.avatarUri} size={36} />
+          </Pressable>
+        )}
+      </View>
+      <View style={shared.tabsRow}>
         <PrimaryButton label="Lista" onPress={() => {}} />
         <PrimaryButton
           label={`Preferiti (${favoriteIds.length})`}
@@ -80,16 +101,22 @@ export function MealsListScreen({ navigation }: any) {
         />
       </View>
       <FlatList
+        key={isWide ? "wide" : "narrow"}
         data={state.items}
         keyExtractor={(item) => item.idMeal}
+        numColumns={isWide ? 2 : 1}
+        columnWrapperStyle={isWide ? styles.columnWrapper : undefined}
+        contentContainerStyle={shared.flatListContent}
         renderItem={({ item }) => (
           <Pressable
-            style={styles.row}
+            style={isWide ? shared.listItemWide : shared.listItem}
             onPress={() => navigation.navigate("MealDetail", { idMeal: item.idMeal })}
             accessibilityLabel={`Apri dettaglio di ${item.strMeal}`}
           >
-            <Image source={{ uri: item.strMealThumb }} style={styles.thumb} />
-            <Text style={styles.mealName}>{item.strMeal}</Text>
+            <Image source={{ uri: item.strMealThumb }} style={isWide ? shared.thumbWide : shared.thumb} />
+            <Text style={isWide ? shared.listTitleWide : shared.listTitle} numberOfLines={2}>
+              {item.strMeal}
+            </Text>
             <FavoriteButton
               idMeal={item.idMeal}
             />
@@ -101,33 +128,28 @@ export function MealsListScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 ,backgroundColor: "#d13c3c"},
-    
-  tabsRow: { flexDirection: "row", gap: 10, marginBottom: 16 },
-
-  title: { fontSize: 22, fontWeight: "700", marginBottom: 12 , color: "#ffffff"},
-  
-  favCount: { fontSize: 14, color: "#ffffff", marginBottom: 12 },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 , backgroundColor: "#d13c3c"},
-  
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    gap: 12,
+  loadingText: { marginTop: spacing.sm, color: "#666" },
+  emptyText: { color: colors.white, textAlign: "center", fontSize: 15 },
+  errorText: {
+    color: colors.error,
+    marginBottom: spacing.sm,
+    textAlign: "center",
   },
-  thumb: { width: 48, height: 48, borderRadius: 8 },
-  mealName: { fontSize: 15, fontWeight: "600" , flex: 1 },
-  loadingText: { marginTop: 12, color: "#666" },
-  errorText: { color: "red", marginBottom: 12, textAlign: "center" },
   retryButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: "#f0f0f0",
   },
   retryText: { fontWeight: "600" },
+  columnWrapper: {
+    gap: spacing.sm,
+  },
+   headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
 });
