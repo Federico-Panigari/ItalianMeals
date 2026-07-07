@@ -2,11 +2,16 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import { Avatar } from "../components/Avatar";
 import { createSharedStyles } from "../theme/styles";
-import { colors, spacing } from "../theme/colors";
+import { spacing } from "../theme/colors";
+import { useTheme } from "../context/ThemeContext";
 
 export function ProfileScreen({ navigation }: any) {
   const { user, logout } = useAuth();
-  const shared = createSharedStyles();
+  const { theme } = useTheme();
+  const shared = createSharedStyles(theme);
+  const c = theme.colors;
+
+  const styles = makeStyles(c);
 
   function handleLogout() {
     logout();
@@ -29,29 +34,58 @@ export function ProfileScreen({ navigation }: any) {
         <Text style={shared.profileEmail}>{user.email}</Text>
       </View>
 
-      <Pressable
-        style={styles.logoutButton}
-        onPress={handleLogout}
-        accessibilityLabel="Esci dall'account"
-      >
-        <Text style={styles.logoutText}>Logout</Text>
-      </Pressable>
+      <View style={{ gap: spacing.sm }}>
+        <Pressable
+          style={styles.settingsButton}
+          onPress={() => navigation.navigate("Settings")}
+          accessibilityLabel="Vai alle impostazioni"
+          accessibilityRole="button"
+        >
+          <Text style={styles.settingsText}>Impostazioni</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.logoutButton}
+          onPress={handleLogout}
+          accessibilityLabel="Esci dall'account"
+          accessibilityRole="button"
+        >
+          <Text style={styles.logoutText}>Logout</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  logoutButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: 8,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.white,
-  },
-  logoutText: {
-    color: colors.white,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-});
+function makeStyles(c: any) {
+  return StyleSheet.create({
+    settingsButton: {
+      backgroundColor: c.surface,
+      paddingVertical: spacing.md,
+      borderRadius: 8,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    settingsText: {
+      color: c.text,
+      fontWeight: "600",
+      fontSize: 16,
+    },
+    logoutButton: {
+      backgroundColor: c.primary,
+      paddingVertical: spacing.md,
+      borderRadius: 8,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: c.white,
+      marginTop: spacing.sm,
+    },
+    logoutText: {
+      color: c.white,
+      fontWeight: "700",
+      fontSize: 16,
+    },
+  });
+}
+

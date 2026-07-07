@@ -3,9 +3,14 @@ import { View, Text, Image, ScrollView, Pressable, ActivityIndicator, StyleSheet
 import { fetchMealById } from "../services/mealsApi";
 import { MealDetailState } from "../types/meal";
 import { FavoriteButton } from "../components/FavoriteButton";
+import { createSharedStyles } from "../theme/styles";
+import { useTheme } from "../context/ThemeContext";
+
 
 export function MealDetailScreen({ route ,navigation}: any) {
   const idMeal = route.params?.idMeal;
+  const { theme } = useTheme();
+  const shared = createSharedStyles(theme);
 
   const [state, setState] = useState<MealDetailState>({
     status: "idle",
@@ -43,7 +48,7 @@ export function MealDetailScreen({ route ,navigation}: any) {
 
   if (state.status === "idle") {
     return (
-      <View style={styles.center}>
+      <View style={shared.center}>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -51,23 +56,23 @@ export function MealDetailScreen({ route ,navigation}: any) {
 
   if (state.status === "loading") {
     return (
-      <View style={styles.center}>
+      <View style={shared.center}>
         <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Caricamento ricetta...</Text>
+        <Text style={shared.loadingText}>Caricamento ricetta...</Text>
       </View>
     );
   }
 
   if (state.status === "error") {
     return (
-      <View style={styles.center}>
-        <Text style={styles.errorText}>{state.message}</Text>
+      <View style={shared.center}>
+        <Text style={shared.errorText}>{state.message}</Text>
         <Pressable
-          style={styles.retryButton}
+          style={shared.retryButton}
           onPress={loadMeal}
           accessibilityLabel="Riprova a caricare la ricetta"
         >
-          <Text style={styles.retryText}>Retry</Text>
+          <Text style={shared.retryText}>Retry</Text>
         </Pressable>
       </View>
     );
@@ -75,7 +80,7 @@ export function MealDetailScreen({ route ,navigation}: any) {
 
   if (state.status === "empty") {
     return (
-      <View style={styles.center}>
+      <View style={shared.center}>
         <Text>Piatto non trovato</Text>
       </View>
     );
@@ -84,59 +89,27 @@ export function MealDetailScreen({ route ,navigation}: any) {
   const meal = state.data!;
 
   return (
-    <ScrollView style={styles.container}>
-      <Image source={{ uri: meal.strMealThumb }} style={styles.image} />
-      <View style={styles.titleRow}>
-        <Text style={styles.title}>{meal.strMeal}</Text>
+    <ScrollView style={shared.container}>
+      <Image source={{ uri: meal.strMealThumb }} style={shared.image} />
+      <View style={shared.titleRow}>
+        <Text style={shared.title}>{meal.strMeal}</Text>
         <FavoriteButton
           idMeal={meal.idMeal}
         />
       </View>
-      <Text style={styles.category}>
+      <Text style={shared.category}>
         {meal.strCategory} · {meal.strArea}
       </Text>
-      <Text style={styles.sectionTitle}>Istruzioni</Text>
-      <Text style={styles.instructions}>{meal.strInstructions}</Text>
+      <Text style={shared.sectionTitle}>Istruzioni</Text>
+      <Text style={shared.instructions}>{meal.strInstructions}</Text>
       <Pressable
-        style={styles.backButton}
+        style={shared.backButton}
         onPress={() => navigation.goBack()}
         accessibilityLabel="Torna alla lista dei piatti"
       >
-        <Text style={styles.backButtonText}>← Torna indietro</Text>
+        <Text style={shared.backButtonText}>← Torna indietro</Text>
       </Pressable>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 ,backgroundColor: "#ff4343"},
-  center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 16 , backgroundColor: "#ff4343"},
-  image: { width: "100%", height: 220, borderRadius: 12, marginBottom: 16 },
-  titleRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  title: { fontSize: 22, fontWeight: "700" , color: "#860a0a"},
-  category: { color: "#ffe600", marginTop: 4, marginBottom: 16 },
-  sectionTitle: { fontSize: 17, fontWeight: "700", marginBottom: 8 , color: "#ffffff"},
-  instructions: { fontSize: 14, lineHeight: 20 },
-  loadingText: { marginTop: 12, color: "#5c5c5c" },
-  errorText: { color: "red", marginBottom: 12, textAlign: "center" },
-  retryButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
-  },
-  retryText: { fontWeight: "600" },
-  backButton: {
-    marginTop: 20,
-    marginBottom: 24,
-    alignSelf: "flex-start",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: "#fff",
-    borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
-  backButtonText: { color: "#fff", fontWeight: "600" },
-});
