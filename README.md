@@ -200,3 +200,8 @@ Il tema si attiva dallo **Switch** in Impostazioni. La scelta persiste al riavvi
 - La sessione utente **non persiste** al riavvio dell'app (solo in memoria con `useState`) — al refresh si torna al login
 - Il tema e i preferiti **persistono** al riavvio tramite AsyncStorage
 - L'API TheMealDB è gratuita per uso didattico, non richiede autenticazione
+
+
+
+
+
