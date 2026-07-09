@@ -15,6 +15,7 @@ export function PrimaryButton({ label, onPress }: PrimaryButtonProps) {
   );
 }
 
+
 const styles = StyleSheet.create({
   button: {
     paddingVertical: 12,
